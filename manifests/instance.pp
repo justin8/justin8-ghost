@@ -4,6 +4,9 @@
 #
 # == Parameters
 #
+# [*url*]
+#   The URL where this instance will be hosted. e.g. 'https://blog.example.com'. (Required)
+#
 # [*user*]
 #   The user which this instance will run as and which will own all files
 #   (Optional)
@@ -34,20 +37,17 @@
 # [*mail_options*]
 #   Mail misc options. Accepts a hash of options. (Optional) See http://docs.ghost.org/mail/
 #
-# [*url*]
-#   The URL where this instance will be hosted. e.g. 'https://blog.example.com'. (Required)
-#
 define ghost::instance(
+  $url,
   $user         = $ghost::user,
   $group        = $ghost::group,
   $home         = "${ghost::home}/${title}",
-  $version      = "0.6.4",
-  $host         = "127.0.0.1",
-  $port         = "2368",
+  $version      = '0.6.4',
+  $host         = '127.0.0.1',
+  $port         = '2368',
   $transport    = '',
   $from         = '',
   $mail_options = {},
-  $url,
 ) {
   validate_string($title)
   validate_string($user)
@@ -63,7 +63,7 @@ define ghost::instance(
 
   ensure_packages(['curl', 'unzip'])
 
-  file { "$home":
+  file { $home:
     ensure  => directory,
     owner   => $user,
     group   => $group,
@@ -109,7 +109,7 @@ define ghost::instance(
   }
 
   file { $service_file:
-    content => template("ghost/systemd.service.erb"),
+    content => template('ghost/systemd.service.erb'),
     notify  => Exec['ghost-systemd-reload'],
   }
 

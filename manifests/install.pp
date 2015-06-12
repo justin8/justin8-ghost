@@ -16,16 +16,16 @@ class ghost::install {
   }
 
   user { $ghost::user:
-    ensure     => present,
-    system     => true,
-    home       => $ghost::home,
-    gid        => $ghost::group,
-    require    => Group[$ghost::group],
+    ensure  => present,
+    system  => true,
+    home    => $ghost::home,
+    gid     => $ghost::group,
+    require => Group[$ghost::group],
   }->
 
-  file { "/srv/ghost":
+  file { '/srv/ghost':
     owner => $ghost::user,
     group => $ghost::group,
-    mode  => "0755",
+    mode  => '0755',
   }
 }
