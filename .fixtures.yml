@@ -1,0 +1,6 @@
+fixtures:
+    repositories:
+        stdlib: git://github.com/puppetlabs/puppetlabs-stdlib.git
+        nodejs: git://github.com/puppet-community/puppet-nodejs.git
+    symlinks:
+        ghost: "#{source_dir}"

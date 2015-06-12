@@ -7,3 +7,7 @@
 Session.vim
 .netrwhist
 *~
+
+### puppet ###
+pkg
+spec/.fixtures
