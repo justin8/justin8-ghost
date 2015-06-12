@@ -17,7 +17,7 @@ config = {
             <% if @transport != '' -%>
             transport: '<%= @transport %>',
             <% end -%>
-            <% if @fromaddress != '' -%>
+            <% if @from != '' -%>
             from: '<%= @from %>',
             <% end -%>
             options: {
@@ -30,6 +30,7 @@ config = {
                 <%= key %>: '<%= value %>',
             <% end -%>
             <% end -%>
+            }
         },
         database: {
             client: 'sqlite3',
@@ -45,7 +46,8 @@ config = {
             // Port to be passed to node's `net.Server#listen()`, for iisnode set this to `process.env.PORT`
             port: '<%= @port %>'
         }
-    };
+    }
+}
 
 // Export config
 module.exports = config;
