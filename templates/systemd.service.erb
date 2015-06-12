@@ -1,0 +1,16 @@
+# This file is managed by Puppet and local changes may be overwritten
+
+[Unit]
+Description=Ghost blog <%= @title %>
+After=network-online.target
+Requires=network-online.target
+
+[Service]
+User=<%= @user %>
+Group=<%= @group %>
+Restart=on-failure
+WorkingDirectory=<%= @home %>
+ExecStart=<%= scope['nodejs::params::npm_path'] %> start --production
+
+[Install]
+WantedBy=multi-user.target
