@@ -24,8 +24,9 @@ class ghost::install {
   }->
 
   file { '/srv/ghost':
-    owner => $ghost::user,
-    group => $ghost::group,
-    mode  => '0755',
+    ensure => directory,
+    owner  => $ghost::user,
+    group  => $ghost::group,
+    mode   => '0755',
   }
 }
