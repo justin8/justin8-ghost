@@ -89,6 +89,11 @@ After including the parent ghost module on your node, you can create multiple in
  Mail misc options. Accepts a hash of options. (Optional) See http://docs.ghost.org/mail/
 
 
+## Updates
+By specifying a newer version of Ghost you can upgrade an instance. Copies of
+the new version are only downloaded once per host. Updates follow the release
+process outlined by the Ghost documentation.
+
 ## Limitations
 
 This has been tested thoroughly on Archlinux but is designed to work on any
@@ -99,6 +104,9 @@ without issue:
   * RedHat 7+ and derivatives
   * Debian 8+
   * Ubuntu 15.04+
+
+Currently only basic mail servers are supported. Ghost itself supports things
+like mailgun and gmail directly. This module does not yet support that.
 
 ## Development
 
