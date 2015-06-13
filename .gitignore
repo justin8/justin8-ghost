@@ -10,4 +10,4 @@ Session.vim
 
 ### puppet ###
 pkg
-spec/.fixtures
+spec/fixtures
