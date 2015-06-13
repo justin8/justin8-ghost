@@ -100,7 +100,7 @@ This has been tested thoroughly on Archlinux but is designed to work on any
 machine using systemd. The latest releases of most major distros should work
 without issue:
   * Archlinux
-  * Fedora 15+
+  * Fedora 18+
   * RedHat 7+ and derivatives
   * Debian 8+
   * Ubuntu 15.04+
