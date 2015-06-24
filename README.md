@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/justin8/justin8-ghost.svg?branch=master)](https://travis-ci.org/justin8/justin8-ghost)
+[![Build Status](https://travis-ci.org/justin8/justin8-ghost.svg)](https://travis-ci.org/justin8/justin8-ghost)
 
 # Justin8-Ghost
 
