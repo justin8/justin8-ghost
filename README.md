@@ -1,3 +1,4 @@
+[![Puppet Forge](http://img.shields.io/puppetforge/v/justin8/ghost.svg)](https://forge.puppetlabs.com/justin8/ghost)
 [![Build Status](https://travis-ci.org/justin8/justin8-ghost.svg)](https://travis-ci.org/justin8/justin8-ghost)
 
 # Justin8-Ghost
