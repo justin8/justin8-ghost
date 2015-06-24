@@ -7,6 +7,4 @@ class ghost::params {
   $group = 'ghost'
   $home  = '/srv/ghost'
   $include_nodejs = false
-
-  include ghost::systemd_reload
 }

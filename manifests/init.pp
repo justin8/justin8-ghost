@@ -33,6 +33,7 @@ class ghost(
   validate_bool($include_nodejs)
 
   contain ghost::install
+  include systemd
 
   Class['ghost'] -> Ghost::Instance <||>
 }

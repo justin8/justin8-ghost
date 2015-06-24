@@ -110,7 +110,7 @@ define ghost::instance(
 
   file { $service_file:
     content => template('ghost/systemd.service.erb'),
-    notify  => Exec['ghost-systemd-reload'],
+    notify  => Exec['systemd-daemon-reload'],
   }
 
   service { $service:
