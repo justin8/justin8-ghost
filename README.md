@@ -26,21 +26,23 @@ Ghost is a pure blogging platform based on NodeJS. This module provides a
 simplified way of creating configurations to manage any number of instances
 of Ghost.
 
-This module is for any system with systemd. Everything is run in standard
+This module is for any system with systemd OR docker. Everything is run in standard
 locations as per file-hierarchy and systemd standards. Any other dependencies
-(nodejs currently) are managed by upstream Puppet modules.
+(nodejs and optionally docker currently) are managed by upstream Puppet modules.
 
 ## Setup
 
 ### What ghost affects
 
-This module is only lightly tested outside of Archlinux, but there are no
-foreseeable issues
+This module can affect nodejs and optionally docker as it will install these
+as required.
 
 ### Setup Requirements
 
 Puppetlabs-nodejs can be included but is not necessary so long as npm is
-available on the system
+available on the system.
+
+Garethr-docker is required for using the docker service_type.
 
 ### Beginning with ghost
 
@@ -72,12 +74,18 @@ After including the parent ghost module on your node, you can create multiple in
 **home**
  The home in which all files will reside. (Optional)
 
+**service_type**
+ Can be either 'systemd' or 'docker'. Locations of data will remain the same for user data,
+ However, if it is set to 'docker' the host IP will always be 0.0.0.0 due to limitations in
+ docker.
+
 **version**
  The version of ghost to install. Specifying a new version will update
  installed instances to the new (or old) version. (Optional)
 
 **host**
  Host IP to listen on. (Optional) Defaults to localhost.
+ This is ignored when service_type = docker
 
 **port**
  Default port to listen on. (Optional) Defaults to 2368.
@@ -94,19 +102,24 @@ After including the parent ghost module on your node, you can create multiple in
 
 ## Updates
 By specifying a newer version of Ghost you can upgrade an instance. Copies of
-the new version are only downloaded once per host. Updates follow the release
-process outlined by the Ghost documentation.
+the new version are only downloaded once per host with systemd service type.
+Updates follow the release process outlined by the Ghost documentation.
+
+If service type is set to docker then the specified image version will be pulled
+and used for the service.
 
 ## Limitations
 
 This has been tested thoroughly on Archlinux but is designed to work on any
-machine using systemd. The latest releases of most major distros should work
-without issue:
+machine using systemd or docker. The latest releases of most major distros should work
+without issue for the systemd service_type:
   * Archlinux
   * Fedora 18+
   * RedHat 7+ and derivatives
   * Debian 8+
   * Ubuntu 15.04+
+
+Any distros supported by garethr/docker will work with service_type = docker.
 
 Currently only basic mail servers are supported. Ghost itself supports things
 like mailgun and gmail directly. This module does not yet support that.
