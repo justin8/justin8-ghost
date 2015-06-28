@@ -10,7 +10,8 @@ User=<%= @user %>
 Group=<%= @group %>
 Restart=on-failure
 WorkingDirectory=<%= @home %>
-ExecStart=<%= scope['nodejs::params::npm_path'] %> start --production
+#ExecStart=<%= scope['nodejs::params::npm_path'] %> start --production
+ExecStart=/usr/bin/npm start --production
 
 [Install]
 WantedBy=multi-user.target

@@ -1,6 +1,6 @@
 {
   "name": "justin8-ghost",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "author": "justin8",
   "summary": "Install, manage and configures multiple ghost blog instances",
   "license": "MIT",
@@ -61,7 +61,8 @@
   "dependencies": [
     {"name":"puppetlabs/stdlib","version_requirement":">= 3.0.0 < 5.0.0"},
     {"name":"puppetlabs/nodejs","version_requirement":">= 1.0.0 < 2.0.0"},
-    {"name":"justin8/systemd","version_requirement":">= 0.0.1 < 1.0.0"}
+    {"name":"justin8/systemd","version_requirement":">= 0.0.1 < 1.0.0"},
+    {"name":"garethr/docker","version_requirement":">= 4.0.0 < 5.0.0"}
   ]
 }
 
