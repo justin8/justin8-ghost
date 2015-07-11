@@ -45,6 +45,7 @@
 #
 define ghost::instance(
   $url,
+  $ensure       = 'present',
   $user         = $ghost::user,
   $group        = $ghost::group,
   $home         = "${ghost::home}/${title}",
@@ -63,6 +64,7 @@ define ghost::instance(
   validate_re($service_type, '(systemd|docker)')
   validate_re($version, '\d\.\d\.\d')
   validate_re($port, '\d+')
+  validate_re($ensure, '(present|absent)')
   validate_string(url)
 
   $service = "ghost_${title}"
@@ -73,90 +75,110 @@ define ghost::instance(
     path => $::path
   }
 
-  if $service_type == 'docker' {
-    include docker
-    $config_port = '2368'
-    $config_host = '0.0.0.0'
+  if $ensure == 'present' {
+    if $service_type == 'docker' {
+      include docker
+      $config_port = '2368'
+      $config_host = '0.0.0.0'
 
-    ensure_resource('docker::image', 'ghost', { 'image_tag' => $version } )
+      ensure_resource('docker::image', 'ghost', { 'image_tag' => $version } )
 
-    file { $home:
-      ensure  => directory,
+      file { $home:
+        ensure  => directory,
+      }
+
+      docker::run { "ghost_${title}":
+        image     => "ghost:${version}",
+        command   => 'npm start --production',
+        ports     => "${port}:${config_port}",
+        volumes   => "${home}:/var/lib/ghost",
+        require   => Docker::Image['ghost'],
+        subscribe => File["ghost_config_${title}"],
+      }
+    } else {
+      $config_port = $port
+      $config_host = $host
+
+      ensure_packages(['curl', 'unzip'])
+
+      file { $home:
+        ensure  => directory,
+        owner   => $user,
+        group   => $group,
+        recurse => true,
+      }
+
+      exec { "ghost_download_${title}":
+        cwd     => $ghost::home,
+        command => "curl -L ${source} -o ${version}.zip",
+        unless  => "test -f ${version}.zip",
+        require => File[$home],
+        notify  => Exec["ghost_unzip_${title}"],
+      }
+
+      exec { "ghost_unzip_${title}":
+        cwd     => $home,
+        command => "unzip -ou '${ghost::home}/${version}.zip' && rm '${home}/npm_install_complete'",
+        unless  => "grep 'version' package.json 2>/dev/null | grep -q '${version}'",
+        notify  => [ Exec["ghost_npm_install_${title}"], Exec["ghost_npm_install_${title}"] ],
+      }
+
+      exec { "ghost_npm_install_${title}":
+        cwd         => $home,
+        #command     => "${::nodejs::params::npm_path} install --production",
+        command     => "/usr/bin/npm install --production && touch '${home}/npm_install_complete'",
+        unless      => "test -f '${home}/npm_install_complete'",
+        refreshonly => true,
+        notify      => [ Service[$service], Exec["ghost_permissions_${title}"] ],
+      }
+
+      # Had to do this due to dependency order. We require the folder, but the permissions need to be done after
+      # Otherwise 2 puppet runs would be required to apply cleanly
+      exec { "ghost_permissions_${title}":
+        path        => '/usr/bin',
+        command     => "chown -R ${user}:${group} '${home}'",
+        refreshonly => true,
+        subscribe   => File["ghost_config_${title}"],
+        before      => Service[$service],
+      }
+
+      file { $service_file:
+        content => template('ghost/systemd.service.erb'),
+        notify  => Exec['systemd-daemon-reload'],
+      }
+
+      service { $service:
+        ensure    => running,
+        enable    => true,
+        subscribe => File["ghost_config_${title}", $service_file],
+      }
     }
 
-    docker::run { "ghost_${title}":
-      image     => "ghost:${version}",
-      command   => 'npm start --production',
-      ports     => "${port}:${config_port}",
-      volumes   => "${home}:/var/lib/ghost",
-      require   => Docker::Image['ghost'],
-      subscribe => File["ghost_config_${title}"],
-    }
-  } else {
-    $config_port = $port
-    $config_host = $host
-
-    ensure_packages(['curl', 'unzip'])
-
-    file { $home:
-      ensure  => directory,
+    file { "ghost_config_${title}":
       owner   => $user,
       group   => $group,
-      recurse => true,
-    }
-
-    exec { "ghost_download_${title}":
-      cwd     => $ghost::home,
-      command => "curl -L ${source} -o ${version}.zip",
-      unless  => "test -f ${version}.zip",
+      path    => "${home}/config.js",
+      content => template('ghost/config.js.erb'),
       require => File[$home],
-      notify  => Exec["ghost_unzip_${title}"],
     }
-
-    exec { "ghost_unzip_${title}":
-      cwd     => $home,
-      command => "unzip -ou '${ghost::home}/${version}.zip' && rm '${home}/npm_install_complete'",
-      unless  => "grep 'version' package.json 2>/dev/null | grep -q '${version}'",
-      notify  => [ Exec["ghost_npm_install_${title}"], Exec["ghost_npm_install_${title}"] ],
-    }
-
-    exec { "ghost_npm_install_${title}":
-      cwd         => $home,
-      #command     => "${::nodejs::params::npm_path} install --production",
-      command     => "/usr/bin/npm install --production && touch '${home}/npm_install_complete'",
-      unless      => "test -f '${home}/npm_install_complete'",
-      refreshonly => true,
-      notify      => [ Service[$service], Exec["ghost_permissions_${title}"] ],
-    }
-
-    # Had to do this due to dependency order. We require the folder, but the permissions need to be done after
-    # Otherwise 2 puppet runs would be required to apply cleanly
-    exec { "ghost_permissions_${title}":
-      path        => '/usr/bin',
-      command     => "chown -R ${user}:${group} '${home}'",
-      refreshonly => true,
-      subscribe   => File["ghost_config_${title}"],
-      before      => Service[$service],
+  } else {
+    file { $home:
+      ensure  => absent,
+      recurse => true,
+      force   => true,
+      require => Service[$service],
     }
 
     file { $service_file:
-      content => template('ghost/systemd.service.erb'),
-      notify  => Exec['systemd-daemon-reload'],
+      ensure  => absent,
+      require => Service[$service],
     }
 
     service { $service:
-      ensure    => running,
-      enable    => true,
-      subscribe => File["ghost_config_${title}", $service_file],
+      ensure => stopped,
+      enable => false,
     }
-  }
 
-  file { "ghost_config_${title}":
-    owner   => $user,
-    group   => $group,
-    path    => "${home}/config.js",
-    content => template('ghost/config.js.erb'),
-    require => File[$home],
+    # Handle ensure => absent for docker
   }
-
 }
