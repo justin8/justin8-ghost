@@ -115,7 +115,7 @@ define ghost::instance(
 
     exec { "ghost_unzip_${title}":
       cwd     => $home,
-      command => "unzip -ou '${ghost::home}/${version}.zip' && rm '${home}/npm_install_complete'",
+      command => "unzip -ou '${ghost::home}/${version}.zip' && rm -f '${home}/npm_install_complete'",
       unless  => "grep 'version' package.json 2>/dev/null | grep -q '${version}'",
       notify  => [ Exec["ghost_npm_install_${title}"], Exec["ghost_npm_install_${title}"] ],
     }
