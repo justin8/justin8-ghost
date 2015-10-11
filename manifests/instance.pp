@@ -107,6 +107,7 @@ define ghost::instance(
 
     exec { "ghost_download_${title}":
       cwd     => $ghost::home,
+      user    => $user,
       command => "curl -L ${source} -o ${version}.zip",
       unless  => "test -f ${version}.zip",
       require => File[$home],
@@ -115,6 +116,7 @@ define ghost::instance(
 
     exec { "ghost_unzip_${title}":
       cwd     => $home,
+      user    => $user,
       command => "unzip -ou '${ghost::home}/${version}.zip' && rm -f '${home}/npm_install_complete'",
       unless  => "grep 'version' package.json 2>/dev/null | grep -q '${version}'",
       notify  => [ Exec["ghost_npm_install_${title}"], Exec["ghost_npm_install_${title}"] ],
@@ -122,21 +124,11 @@ define ghost::instance(
 
     exec { "ghost_npm_install_${title}":
       cwd         => $home,
+      user        => $user,
       #command     => "${::nodejs::params::npm_path} install --production",
       command     => "/usr/bin/npm install --production && touch '${home}/npm_install_complete'",
       unless      => "test -f '${home}/npm_install_complete'",
-      refreshonly => true,
-      notify      => [ Service[$service], Exec["ghost_permissions_${title}"] ],
-    }
-
-    # Had to do this due to dependency order. We require the folder, but the permissions need to be done after
-    # Otherwise 2 puppet runs would be required to apply cleanly
-    exec { "ghost_permissions_${title}":
-      path        => '/usr/bin',
-      command     => "chown -R ${user}:${group} '${home}'",
-      refreshonly => true,
-      subscribe   => File["ghost_config_${title}"],
-      before      => Service[$service],
+      notify      => Service[$service],
     }
 
     file { $service_file:
