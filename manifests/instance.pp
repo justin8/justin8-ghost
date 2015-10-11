@@ -49,7 +49,7 @@ define ghost::instance(
   $group        = $ghost::group,
   $home         = "${ghost::home}/${title}",
   $service_type = 'systemd',
-  $version      = '0.6.4',
+  $version      = $ghost::params::version,
   $host         = '127.0.0.1',
   $port         = '2368',
   $transport    = '',
