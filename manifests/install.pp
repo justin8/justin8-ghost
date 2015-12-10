@@ -5,7 +5,7 @@
 # puppetlabs/nodejs (except windows)
 #
 class ghost::install {
-  ensure_packages(['unzip', 'curl'])
+  ensure_packages(['unzip', 'curl', 'make'])
 
   if $ghost::include_nodejs {
     include nodejs
