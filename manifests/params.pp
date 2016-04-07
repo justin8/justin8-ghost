@@ -7,5 +7,5 @@ class ghost::params {
   $group = 'ghost'
   $home  = '/srv/ghost'
   $include_nodejs = false
-  $version = '0.7.1'
+  $version = '0.7.8'
 }

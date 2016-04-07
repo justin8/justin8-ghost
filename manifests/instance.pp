@@ -102,7 +102,12 @@ define ghost::instance(
       ensure  => directory,
       owner   => $user,
       group   => $group,
-      recurse => true,
+    }
+
+    exec { "${home}-permissions":
+      cwd     => $ghost::home,
+      command => "chown ${user}:${group} '${home}'",
+      require => File[$home],
     }
 
     exec { "ghost_download_${title}":
@@ -110,7 +115,7 @@ define ghost::instance(
       user    => $user,
       command => "curl -L ${source} -o ${version}.zip",
       unless  => "test -f ${version}.zip",
-      require => File[$home],
+      require => Exec["${home}-permissions"],
       notify  => Exec["ghost_unzip_${title}"],
     }
 
@@ -124,7 +129,6 @@ define ghost::instance(
 
     exec { "ghost_npm_install_${title}":
       cwd         => $home,
-      user        => $user,
       #command     => "${::nodejs::params::npm_path} install --production",
       command     => "/usr/bin/npm install --production && touch '${home}/npm_install_complete'",
       unless      => "test -f '${home}/npm_install_complete'",
